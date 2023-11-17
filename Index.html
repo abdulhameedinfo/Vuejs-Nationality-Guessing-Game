@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page - My ASP.NET Application</title>
+    <link href="./Application_files/bootstrap.css" rel="stylesheet">
+    <link href="./Application_files/site.css" rel="stylesheet">
+
+    <script src="./Application_files/modernizr-2.6.2.js.download"></script>
+    <script src="./Application_files/vue.min.js.download"></script>
+    <script src="./Application_files/script.js.download"></script>
+
+</head>
+
+<body>
+    <div class="container body-content">
+
+        <style>
+            #demo {
+                overflow: hidden;
+            }
+        </style>
+        <h1 class="text-center">Guess Nationality Game</h1>
+        <div id="guessNationalityApp">
+            <div class="row hide">
+                <div class="pull-left" style="width: 200px;">
+                    <div id="2" style="height: 200px; width: 200px; border: 2px solid; text-align: center;">Japanese
+                    </div> <br>
+                    <div id="3" style="height: 200px; width: 200px; border: 2px solid; text-align: center;">Korean</div>
+                </div>
+                <div class="pull-left" style="width: 750px; height: 500px;">
+                    <div id="divImage" class="col-xs-2 col-sm-offset-4" style="height: 200px; width: 200px;"><!---->
+                    </div>
+                </div>
+                <div class="pull-left" style="width: 200px;">
+                    <div id="1" style="height: 200px; width: 200px; border: 2px solid; text-align: center;">Chinese
+                    </div> <br>
+                    <div id="4" style="height: 200px; width: 200px; border: 2px solid; text-align: center;">Thai</div>
+                </div>
+                <hr> <br>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-sm-offset-5">
+                    Total Score: 0
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-sm-offset-5"><button class="btn btn-primary">Play Again </button></div> <!---->
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            //function allowDrop(ev) {
+            //    ev.preventDefault();
+            //}
+            //function drop(ev) {
+            //    ev.preventDefault();
+            //    var data = ev.dataTransfer.getData("text");
+            //    //ev.target.appendChild(document.getElementById(data));
+            //    console.log(ev.target.id + " - " + data);
+            //}
+            //function drag(ev) {
+            //    ev.dataTransfer.setData("text", ev.target.src);
+            //}
+
+
+
+            new Vue({
+                el: '#guessNationalityApp',
+                data: {
+                    //src= image source, n=nationality (1=China, 2=Japan, 3=Korea, 4=Thai
+                    imgList: [
+                        {
+                            src: '/Images/j1.jpg', g: 2
+                        },
+                        {
+                            src: '/Images/c1.jpg', g: 1
+                        },
+                        {
+                            src: '/Images/c2.jpg', g: 1
+                        },
+                        {
+                            src: '/Images/k4.jpg', g: 3
+                        },
+                        {
+                            src: '/Images/c3.jpg', g: 1
+                        },
+                        {
+                            src: '/Images/th1.jpg', g: 4
+                        },
+                        {
+                            src: '/Images/c4.jpg', g: 1
+                        },
+                        {
+                            src: '/Images/j2.jpg', g: 2
+                        },
+                        {
+                            src: '/Images/sk2.jpg', g: 3
+                        },
+                        {
+                            src: '/Images/j3.jpg', g: 2
+                        },
+                        {
+                            src: '/Images/sk.jpg', g: 3
+                        },
+                        {
+                            src: '/Images/th3.jpg', g: 4
+                        },
+                        {
+                            src: '/Images/sk3.jpg', g: 3
+                        },
+                        {
+                            src: '/Images/th2.jpg', g: 4
+                        }
+                    ],
+                    currentImg: 0,
+                    currentImgObj: '',
+                    imgHeight: '200px',
+                    imgWidth: '200px',
+                    gameStatus: 0,
+                    totalScore: 0,
+                    playAgain: 0
+                },
+                methods: {
+                    startGame: function () {
+                        this.gameStatus = 1;
+                        this.currentImg = 0;
+                        this.playAgain = 0;
+                        this.totalScore = 0;
+                        this.dropNextImage();
+                    },
+                    dropNextImage: function () {
+                        this.currentImgObj = this.imgList[this.currentImg];
+                        //reset the image to its origninal position. 
+                        $("#divImage").css('top', '');
+                        $("#divImage").css('left', '');
+                        $("#divImage").css('right', '');
+                        $("#divImage").css('display', '');
+
+                        this.animateImage(1, '');
+                    },
+                    endGame: function () {
+                        this.gameStatus = 0;
+                        this.currentImg = 0;
+                        $("#divImage").css('top', '');
+                        $("#divImage").stop();
+                    },
+                    allowDrop: function (ev) {
+                        ev.preventDefault();
+                    },
+                    drop: function (ev) {
+                        ev.preventDefault();
+                        this.animateImage(2, ev.target.id);
+                        this.calculateScore(ev.target.id, this.currentImgObj.g);
+                    },
+                    calculateScore: function (boxId, imageGroup) {
+
+                        var $this = this;
+
+                        if (boxId == imageGroup)
+                            this.totalScore += 20;
+                        else
+                            this.totalScore -= 5
+
+                    },
+                    animateImage: function (actionType, boxId) {
+                        $("#divImage").stop();
+                        var $this = this;
+                        var anm = null;
+
+                        if (actionType == 1) {
+                            anm = $("#divImage").animate({
+                                top: "280"
+                            },
+                                {
+                                    queue: false,
+                                    duration: 3000,
+                                    complete: function () {
+                                        $this.currentImg++;
+                                        if ($this.gameStatus == 0) {
+                                            //do nothing, as it is cancelled by user.
+                                        }
+                                        else if ($this.currentImg < $this.imgList.length) {
+                                            $this.dropNextImage();
+                                        }
+                                        else {
+                                            $this.endGame();
+                                            $this.playAgain = 1;
+                                        }
+                                    }
+                                });
+                        }
+                        //boxId (2,3) = right most boxes
+                        else if (boxId == 2 || boxId == 3) {
+                            anm = $("#divImage").animate({
+                                right: 200,
+                                top: boxId == 1 || boxId == 2 ? 20 : boxId == 3 || boxId == 4 ? 230 : 0,
+                            }, 1000, function () {
+
+                            });
+                        }
+                        else {
+                            anm = $("#divImage").animate({
+                                left: 220,
+                                top: boxId == 1 || boxId == 2 ? 20 : boxId == 3 || boxId == 4 ? 230 : 0,
+                            }, 1000, function () {
+
+                            });
+                        }
+
+                        //then fadout after animating toward respective box.
+                        if (actionType == 2) {
+                            anm.fadeOut(1000, function () {
+                                $this.currentImg++;
+
+                                if ($this.gameStatus == 0) {
+                                    //do nothing, as it is cancelled by user.
+                                }
+                                else if ($this.currentImg < $this.imgList.length) {
+                                    $this.dropNextImage();
+                                }
+                                else {
+                                    $this.endGame();
+                                    $this.playAgain = 1;
+                                }
+                            });
+                        }
+                    }
+                }
+            })
+        </script>
+
+    </div>
+
+    <script src="./Application_files/jquery-1.10.2.js.download"></script>
+    <script src="./Application_files/bootstrap.js.download"></script>
+    <script src="./Application_files/respond.js.download"></script>
+</body>
+
+</html>
